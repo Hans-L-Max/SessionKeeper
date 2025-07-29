@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Session Keeper</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h3 class="title">Session Keeper</h3>
+            <div class="status" id="status-indicator">
+                <span class="status-light"></span>
+                <span class="status-text">Inactive</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="mode">Mode:</label>
+            <select id="mode">
+                <option value="reload">Reload Tab</option>
+                <option value="click">Click Element(s)</option>
+            </select>
+        </div>
+
+        <div id="selectors-container" class="form-group hidden">
+            <label for="selectors">CSS Selector(s):</label>
+            <input type="text" id="selectors" placeholder=".btn-class, #element-id">
+        </div>
+
+        <div class="form-group">
+            <label for="interval">Interval (seconds):</label>
+            <input type="number" id="interval" value="300" max="18000" min="5">
+        </div>
+
+        <div id="error-message" class="error-message hidden"></div>
+
+        <div class="button-group">
+            <button id="start" class="btn btn-start">Start</button>
+            <button id="stop" class="btn btn-stop">Stop</button>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  width: 280px;
+  background-color: #f9f9fa;
+  color: #1a1a1a;
+}
+.container {
+  padding: 15px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+.status {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #555;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background-color: #e9ecef;
+}
+.status-light {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #8e8e8e; /* Gray for inactive */
+  margin-right: 6px;
+  transition: background-color 0.3s;
+}
+.status.active {
+  background-color: #e6f7ec;
+  color: #218838;
+}
+.status.active .status-light {
+  background-color: #28a745; /* Green for active */
+}
+.form-group {
+  margin-bottom: 15px;
+}
+label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+input[type="text"], input[type="number"], select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+input:focus, select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.btn {
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-grow: 1;
+}
+.btn:first-child {
+  margin-right: 5px;
+}
+.btn:last-child {
+  margin-left: 5px;
+}
+.btn-start {
+  background-color: #28a745;
+  color: white;
+}
+.btn-start:hover {
+  background-color: #218838;
+}
+.btn-stop {
+  background-color: #dc3545;
+  color: white;
+}
+.btn-stop:hover {
+  background-color: #c82333;
+}
+.hidden {
+  display: none;
+}
+.error-message {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 13px;
+}

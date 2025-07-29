@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Session Keeper",
+  "version": "2.0.0",
+  "description": "Keeps a browser session active by reloading a tab or clicking an element at a set interval.",
+
+  "permissions": [
+    "tabs",
+    "storage",
+    "alarms"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "action": {
+    "default_icon": {
+      "48": "icons/icon-inactive-48.png"
+    },
+    "default_title": "Session Keeper (Inactive)",
+    "default_popup": "popup/popup.html"
+  },
+
+  "background": {
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+
+  "icons": {
+    "48": "icons/icon-active-48.png",
+    "96": "icons/icon-active-96.png"
+  },
+
+  "browser_specific_settings": {
+    "firefox": {
+      "id": "{c1192b93-82e4-4125-a36b-44b313a339f7}"
+    }
+  }
+}
