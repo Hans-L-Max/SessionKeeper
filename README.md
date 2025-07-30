@@ -89,5 +89,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Copyright
 
 © 2025 Hans-L-Max. All rights reserved.
-
-Happy testing! 🎉
