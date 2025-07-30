@@ -1,108 +1,182 @@
-// Polyfill to use the 'browser' namespace on both Chrome and Firefox.
+/**
+ * Filename: popup.js
+ * Description: Popup interface controller for Session Keeper extension configuration.
+ * Copyright © 2025 Hans-L-Max
+ * License: MIT
+ */
+
+/**
+ * Browser API polyfill for cross-browser compatibility
+ * @type {object}
+ */
 const browser = window.browser || window.chrome;
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Get references to all UI elements
-  const statusIndicator = document.getElementById('status-indicator');
-  const statusText = statusIndicator.querySelector('.status-text');
-  const modeSelect = document.getElementById('mode');
-  const selectorsContainer = document.getElementById('selectors-container');
-  const selectorsInput = document.getElementById('selectors');
-  const intervalInput = document.getElementById('interval');
-  const startButton = document.getElementById('start');
-  const stopButton = document.getElementById('stop');
-  const errorMessage = document.getElementById('error-message');
+/**
+ * DOM element references
+ * @type {object}
+ */
+const elements = {};
 
-  /**
-   * Shows an error message in the popup.
-   * @param {string} message - The error message to display.
-   */
-  function showError(message) {
-    errorMessage.textContent = message;
-    errorMessage.classList.remove('hidden');
+/**
+ * Initializes DOM element references.
+ * @returns {void}
+ */
+function initializeElements() {
+  elements.statusIndicator = document.getElementById('status-indicator');
+  elements.statusText = elements.statusIndicator.querySelector('.status-text');
+  elements.modeSelect = document.getElementById('mode');
+  elements.selectorsContainer = document.getElementById('selectors-container');
+  elements.selectorsInput = document.getElementById('selectors');
+  elements.intervalInput = document.getElementById('interval');
+  elements.startButton = document.getElementById('start');
+  elements.stopButton = document.getElementById('stop');
+  elements.errorMessage = document.getElementById('error-message');
+}
+
+/**
+ * Shows an error message in the popup.
+ * @param {string} message - The error message to display.
+ * @returns {void}
+ */
+function showError(message) {
+  elements.errorMessage.textContent = message;
+  elements.errorMessage.classList.remove('hidden');
+}
+
+/**
+ * Hides the error message.
+ * @returns {void}
+ */
+function hideError() {
+  elements.errorMessage.classList.add('hidden');
+}
+
+/**
+ * Updates the entire popup UI based on data from storage.
+ * @param {object} data - The result from browser.storage.local.get.
+ * @returns {void}
+ */
+function updateUI(data) {
+  // Update status indicator
+  if (data.isActive) {
+    elements.statusIndicator.classList.add('active');
+    elements.statusText.textContent = 'Active';
+  } else {
+    elements.statusIndicator.classList.remove('active');
+    elements.statusText.textContent = 'Inactive';
   }
 
-  /**
-   * Hides the error message.
-   */
-  function hideError() {
-    errorMessage.classList.add('hidden');
+  // Pre-fill form with last used configuration
+  if (data.config) {
+    elements.modeSelect.value = data.config.mode;
+    elements.selectorsInput.value = data.config.selectors ? data.config.selectors.join(', ') : '';
+    elements.intervalInput.value = data.config.interval;
   }
 
-  /**
-   * Updates the entire popup UI based on data from storage.
-   * @param {object} data - The result from browser.storage.local.get.
-   */
-  function updateUI(data) {
-    // Set status indicator
-    if (data.isActive) {
-      statusIndicator.classList.add('active');
-      statusText.textContent = 'Active';
-    } else {
-      statusIndicator.classList.remove('active');
-      statusText.textContent = 'Inactive';
-    }
+  // Update selector input visibility
+  updateSelectorsVisibility();
+}
 
-    // Pre-fill form with the last used configuration, if available
-    if (data.config) {
-      modeSelect.value = data.config.mode;
-      selectorsInput.value = data.config.selectors ? data.config.selectors.join(', ') : '';
-      intervalInput.value = data.config.interval;
-    }
+/**
+ * Updates the visibility of the selectors container based on selected mode.
+ * @returns {void}
+ */
+function updateSelectorsVisibility() {
+  const shouldShow = elements.modeSelect.value === 'click';
+  elements.selectorsContainer.classList.toggle('hidden', !shouldShow);
+}
 
-    // Ensure the selector input visibility is correct based on the mode
-    if (modeSelect.value === 'click') {
-      selectorsContainer.classList.remove('hidden');
-    } else {
-      selectorsContainer.classList.add('hidden');
-    }
+/**
+ * Validates the form inputs.
+ * @returns {object} Validation result with isValid boolean and config object.
+ */
+function validateForm() {
+  const mode = elements.modeSelect.value;
+  const interval = parseInt(elements.intervalInput.value, 10);
+  const selectors = elements.selectorsInput.value
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  if (interval < 5) {
+    showError('Interval must be at least 5 seconds.');
+    return { isValid: false };
   }
 
-  // Load status and config from storage when the popup opens.
-  (async () => {
-    const result = await browser.storage.local.get(['isActive', 'config']);
-    if (result) {
-      updateUI(result);
-    }
-  })();
+  if (interval > 18000) {
+    showError('Interval cannot be more than 18000 seconds (5 hours).');
+    return { isValid: false };
+  }
 
-  // Event listener to show/hide the selector input when the mode changes.
-  modeSelect.addEventListener('change', () => {
-    selectorsContainer.classList.toggle('hidden', modeSelect.value !== 'click');
-  });
+  if (mode === 'click' && selectors.length === 0) {
+    showError('Please provide at least one CSS selector for click mode.');
+    return { isValid: false };
+  }
 
-  // Event listener for the Start button.
-  startButton.addEventListener('click', async () => {
-    hideError(); // Hide previous errors
-    const mode = modeSelect.value;
-    const interval = parseInt(intervalInput.value, 10);
-    const selectors = selectorsInput.value.split(',').map(s => s.trim()).filter(Boolean);
+  return {
+    isValid: true,
+    config: { mode, selectors, interval }
+  };
+}
 
-    if (interval < 5) {
-      showError('Interval must be at least 5 seconds.');
-      return;
-    }
-    if (interval > 18000) {
-      showError('Interval cannot be more than 18000 seconds (5 hours).');
-      return;
-    }
-    if (mode === 'click' && selectors.length === 0) {
-      showError('Please provide at least one CSS selector for click mode.');
-      return;
-    }
+/**
+ * Handles the start button click event.
+ * @returns {Promise<void>}
+ */
+async function handleStart() {
+  hideError();
+  
+  const validation = validateForm();
+  if (!validation.isValid) {
+    return;
+  }
 
+  try {
     await browser.runtime.sendMessage({
       action: 'start',
-      mode,
-      selectors,
-      interval,
+      ...validation.config
     });
     window.close();
-  });
+  } catch (error) {
+    showError('Failed to start Session Keeper. Please try again.');
+    console.error('Start error:', error);
+  }
+}
 
-  // Event listener for the Stop button.
-  stopButton.addEventListener('click', async () => {
+/**
+ * Handles the stop button click event.
+ * @returns {Promise<void>}
+ */
+async function handleStop() {
+  try {
     await browser.runtime.sendMessage({ action: 'stop' });
     window.close();
-  });
-});
+  } catch (error) {
+    showError('Failed to stop Session Keeper. Please try again.');
+    console.error('Stop error:', error);
+  }
+}
+
+/**
+ * Initializes the popup interface.
+ * @returns {Promise<void>}
+ */
+async function initializePopup() {
+  initializeElements();
+  
+  // Load status and config from storage
+  try {
+    const result = await browser.storage.local.get(['isActive', 'config']);
+    updateUI(result);
+  } catch (error) {
+    console.error('Failed to load configuration:', error);
+  }
+
+  // Event listeners
+  elements.modeSelect.addEventListener('change', updateSelectorsVisibility);
+  elements.startButton.addEventListener('click', handleStart);
+  elements.stopButton.addEventListener('click', handleStop);
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializePopup);

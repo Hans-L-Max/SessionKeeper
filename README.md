@@ -4,7 +4,6 @@ Never get logged out automatically again! This addon keeps your sessions active.
 
 **Session Keeper** is a lightweight browser extension for **Firefox and Chrome** designed to prevent session timeouts. It keeps your session active by automatically performing an action on a specific tab at a user-defined interval. This is useful for web applications that log you out after a short period of inactivity.
 
-
 <br>
 
 [► **Get for Firefox**](PASTE-YOUR-FIREFOX-STORE-LINK-HERE) | [► **Get for Chrome**](PASTE-YOUR-CHROME-STORE-LINK-HERE)
@@ -38,10 +37,10 @@ Never get logged out automatically again! This addon keeps your sessions active.
         - **Click Element(s):** Allows you to specify one or more elements to be clicked.
 4.  If using "Click Element(s)":
         - You must provide one or more **CSS selectors** for the elements you want to click, separated by commas.
-        - **To find a CSS selector:** Right-click the element on the page → `Inspect` → In the developer tools, right-click the highlighted HTML code → `Copy` → `CSS Selector`.
+        - **To find a CSS selector:** Right-click the element on the page → `Inspect` → In the developer tools, right-click the highlighted HTML code → `Copy` → `Copy selector` / `CSS selector`.
         - *Example:* `.btn-refresh, #user-menu`
 
-5.  Set the **Interval** in minutes (e.g., `5` for 5 minutes).
+5.  Set the **Interval** in seconds (e.g., `300` for 5 minutes).
 6.  Click **Start**.
 
 That's it! The icon will show you it's working. ✅
@@ -52,12 +51,43 @@ That's it! The icon will show you it's working. ✅
 
 If you want to install the addon from the source code:
 
-1.  Download the project as a ZIP file and unzip it into a folder.
-2.  **For Firefox:**
-    *   Open Firefox and go to `about:debugging`.
-    *   Click on "This Firefox", then "Load Temporary Add-on...".
-    *   Select the `manifest.json` file from the project folder.
-3.  **For Chrome:**
-    *   Open Chrome and go to `chrome://extensions`.
-    *   Enable "Developer mode" in the top right corner.
-    *   Click "Load unpacked" and select the project folder.
+**Note:** The default `manifest.json` is configured for **Firefox**. For Chrome, you need to use the Chrome-specific manifest.
+
+#### 📦 **For Firefox (Default):**
+1.  Download or clone the project into a folder.
+2.  Open Firefox and go to `about:debugging`.
+3.  Click on "This Firefox", then "Load Temporary Add-on...".
+4.  Select the `manifest.json` file from the project folder.
+
+#### 🤖 **For Chrome:**
+1.  Download or clone the project into a folder.
+2.  **Important:** Replace `manifest.json` with `manifest-chrome.json`:
+    *   Rename `manifest-chrome.json` to `manifest.json`
+    *   Or copy the content from `manifest-chrome.json` into `manifest.json`
+3.  Open Chrome and go to `chrome://extensions`.
+4.  Enable "Developer mode" in the top right corner.
+5.  Click "Load unpacked" and select the project folder.
+
+**Manifest Differences:**
+- **Firefox:** Uses `"scripts": ["background.js"]` for background scripts
+- **Chrome:** Uses `"service_worker": "background.js"` for background scripts
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a pull request or open an issue for any bugs or feature requests.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📞 Copyright
+
+© 2025 Hans-L-Max. All rights reserved.
+
+Happy testing! 🎉
