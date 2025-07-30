@@ -41,7 +41,7 @@
   },
 
   "browser_specific_settings": {
-    "firefox": {
+    "gecko": {
       "id": "sessionkeeper@hans-l.de"
     }
   }

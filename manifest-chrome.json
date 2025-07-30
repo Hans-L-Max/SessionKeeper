@@ -38,11 +38,5 @@
   "icons": {
     "48": "icons/icon-active-48.png",
     "96": "icons/icon-active-96.png"
-  },
-
-  "browser_specific_settings": {
-    "firefox": {
-      "id": "sessionkeeper@hans-l.de"
-    }
   }
 }
