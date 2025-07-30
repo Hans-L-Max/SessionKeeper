@@ -108,7 +108,7 @@ async function performAction() {
     }
 
     // Check for content changes if enabled
-    if (config.notifyOnChange) {
+    if (config.notifyOnChange || config.stopOnChange) {
       setTimeout(async () => {
         try {
           const results = await browser.scripting.executeScript({
@@ -121,12 +121,27 @@ async function performAction() {
             const oldHash = contentHashes[activeTab.id];
 
             if (oldHash !== undefined && newHash !== oldHash) {
-              browser.notifications.create({
-                type: 'basic',
-                iconUrl: 'icons/icon-active-96.png',
-                title: 'Session Keeper: Content Changed',
-                message: `The content on "${activeTab.title}" has changed.`,
-              });
+              // Notify if enabled
+              if (config.notifyOnChange) {
+                browser.notifications.create({
+                  type: 'basic',
+                  iconUrl: 'icons/icon-active-96.png',
+                  title: 'Session Keeper: Content Changed',
+                  message: `The content on "${activeTab.title}" has changed.`,
+                });
+              }
+
+              // Stop session keeper if enabled
+              if (config.stopOnChange) {
+                await stopAction();
+                browser.notifications.create({
+                  type: 'basic',
+                  iconUrl: 'icons/icon-inactive-48.png',
+                  title: 'Session Keeper: Stopped',
+                  message: `Session Keeper stopped due to content change on "${activeTab.title}".`,
+                });
+                return; // Exit early, don't update hash
+              }
             }
             contentHashes[activeTab.id] = newHash;
             await browser.storage.local.set({ contentHashes });
@@ -175,7 +190,8 @@ async function handleMessage(request) {
         mode: request.mode,
         selectors: request.selectors,
         interval: request.interval,
-        notifyOnChange: request.notifyOnChange
+        notifyOnChange: request.notifyOnChange,
+        stopOnChange: request.stopOnChange
       };
 
       await browser.storage.local.set({ isActive: true, config, contentHashes: {} });

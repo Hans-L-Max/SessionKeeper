@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Session Keeper",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Keeps a browser session active by reloading a tab or clicking an element at a set interval.",
 
   "permissions": [
