@@ -6,7 +6,7 @@ Never get logged out automatically again! This addon keeps your sessions active.
 
 <br>
 
-[► **Get for Firefox**](PASTE-YOUR-FIREFOX-STORE-LINK-HERE) | [► **Get for Chrome**](PASTE-YOUR-CHROME-STORE-LINK-HERE)
+[► **Get for Firefox**](https://addons.mozilla.org/de/firefox/addon/session-keeper/) | [► **Get for Chrome**]
 
 <br>
 
