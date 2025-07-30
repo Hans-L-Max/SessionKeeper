@@ -18,6 +18,21 @@ const browser = self.browser || self.chrome;
 const ALARM_NAME = 'session-keeper-alarm';
 
 /**
+ * Simple hash function for strings.
+ * @param {string} str The string to hash.
+ * @returns {number} A 32-bit integer hash.
+ */
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
+
+/**
  * Updates the browser action icon, title, and badge based on the active state.
  * @param {boolean} [active=false] - Whether the addon is currently active.
  * @returns {Promise<void>}
@@ -58,7 +73,7 @@ async function updateVisualState(active = false) {
 async function stopAction() {
   try {
     await browser.alarms.clear(ALARM_NAME);
-    await browser.storage.local.set({ isActive: false });
+    await browser.storage.local.set({ isActive: false, contentHashes: {} });
     await updateVisualState(false);
   } catch (error) {
     console.error('Failed to stop action:', error);
@@ -71,7 +86,7 @@ async function stopAction() {
  */
 async function performAction() {
   try {
-    const { config } = await browser.storage.local.get('config');
+    const { config, contentHashes = {} } = await browser.storage.local.get(['config', 'contentHashes']);
     if (!config) {
       await stopAction();
       return;
@@ -84,13 +99,42 @@ async function performAction() {
     }
 
     if (config.mode === 'reload') {
-      // Perform a clean navigation to avoid form resubmission warnings
       await browser.tabs.update(activeTab.id, { url: activeTab.url });
     } else if (config.mode === 'click') {
       await browser.tabs.sendMessage(activeTab.id, {
         action: 'clickElements',
         selectors: config.selectors,
       });
+    }
+
+    // Check for content changes if enabled
+    if (config.notifyOnChange) {
+      setTimeout(async () => {
+        try {
+          const results = await browser.scripting.executeScript({
+            target: { tabId: activeTab.id },
+            func: () => document.body.innerText,
+          });
+
+          if (results && results[0] && results[0].result) {
+            const newHash = simpleHash(results[0].result);
+            const oldHash = contentHashes[activeTab.id];
+
+            if (oldHash !== undefined && newHash !== oldHash) {
+              browser.notifications.create({
+                type: 'basic',
+                iconUrl: 'icons/icon-active-96.png',
+                title: 'Session Keeper: Content Changed',
+                message: `The content on "${activeTab.title}" has changed.`,
+              });
+            }
+            contentHashes[activeTab.id] = newHash;
+            await browser.storage.local.set({ contentHashes });
+          }
+        } catch (e) {
+          console.warn('Could not check for content changes. The tab might have been closed or navigated away.', e);
+        }
+      }, 2000); // 2-second delay
     }
   } catch (error) {
     console.error('Failed to perform action:', error);
@@ -130,10 +174,11 @@ async function handleMessage(request) {
       const config = {
         mode: request.mode,
         selectors: request.selectors,
-        interval: request.interval
+        interval: request.interval,
+        notifyOnChange: request.notifyOnChange
       };
 
-      await browser.storage.local.set({ isActive: true, config });
+      await browser.storage.local.set({ isActive: true, config, contentHashes: {} });
       
       const delayInMinutes = config.interval / 60;
       await browser.alarms.create(ALARM_NAME, { delayInMinutes });

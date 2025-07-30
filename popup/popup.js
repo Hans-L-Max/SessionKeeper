@@ -28,6 +28,7 @@ function initializeElements() {
   elements.selectorsContainer = document.getElementById('selectors-container');
   elements.selectorsInput = document.getElementById('selectors');
   elements.intervalInput = document.getElementById('interval');
+  elements.notifyOnChangeCheckbox = document.getElementById('notifyOnChange');
   elements.startButton = document.getElementById('start');
   elements.stopButton = document.getElementById('stop');
   elements.errorMessage = document.getElementById('error-message');
@@ -71,6 +72,7 @@ function updateUI(data) {
     elements.modeSelect.value = data.config.mode;
     elements.selectorsInput.value = data.config.selectors ? data.config.selectors.join(', ') : '';
     elements.intervalInput.value = data.config.interval;
+    elements.notifyOnChangeCheckbox.checked = !!data.config.notifyOnChange;
   }
 
   // Update selector input visibility
@@ -97,6 +99,7 @@ function validateForm() {
     .split(',')
     .map(s => s.trim())
     .filter(Boolean);
+  const notifyOnChange = elements.notifyOnChangeCheckbox.checked;
 
   if (interval < 5) {
     showError('Interval must be at least 5 seconds.');
@@ -115,7 +118,7 @@ function validateForm() {
 
   return {
     isValid: true,
-    config: { mode, selectors, interval }
+    config: { mode, selectors, interval, notifyOnChange }
   };
 }
 

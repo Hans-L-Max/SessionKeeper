@@ -53,6 +53,20 @@ body {
 .form-group {
   margin-bottom: 15px;
 }
+.form-group-checkbox {
+  display: flex;
+  align-items: center;
+  margin-top: -5px;
+}
+.form-group-checkbox input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+  accent-color: #007bff;
+}
+.form-group-checkbox label {
+  margin-bottom: 0;
+  font-weight: normal;
+}
 label {
   display: block;
   font-weight: 500;

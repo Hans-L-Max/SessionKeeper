@@ -19,11 +19,16 @@ function clickElements(selectors) {
   selectors.forEach(selector => {
     try {
       const element = document.querySelector(selector);
-      if (element && typeof element.click === 'function') {
+      if (element) {
         console.log('Session Keeper: Clicking element ->', selector);
-        element.click();
+        const clickEvent = new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        });
+        element.dispatchEvent(clickEvent);
       } else {
-        console.warn('Session Keeper: Element not found or not clickable for selector ->', selector);
+        console.warn('Session Keeper: Element not found for selector ->', selector);
       }
     } catch (error) {
       console.error('Session Keeper: Error clicking element with selector', selector, error);
